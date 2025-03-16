@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/FemPro.dir/src/fem.c.o"
+  "CMakeFiles/FemPro.dir/src/fem.c.o.d"
   "CMakeFiles/FemPro.dir/src/main.c.o"
   "CMakeFiles/FemPro.dir/src/main.c.o.d"
   "FemPro"

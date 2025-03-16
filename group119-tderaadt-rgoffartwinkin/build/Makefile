@@ -142,6 +142,30 @@ run/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/build
 .PHONY : run/fast
 
+src/fem.o: src/fem.c.o
+.PHONY : src/fem.o
+
+# target to build an object file
+src/fem.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/fem.c.o
+.PHONY : src/fem.c.o
+
+src/fem.i: src/fem.c.i
+.PHONY : src/fem.i
+
+# target to preprocess a source file
+src/fem.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/fem.c.i
+.PHONY : src/fem.c.i
+
+src/fem.s: src/fem.c.s
+.PHONY : src/fem.s
+
+# target to generate assembly for a file
+src/fem.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/fem.c.s
+.PHONY : src/fem.c.s
+
 src/main.o: src/main.c.o
 .PHONY : src/main.o
 
@@ -176,6 +200,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... run"
 	@echo "... FemPro"
+	@echo "... src/fem.o"
+	@echo "... src/fem.i"
+	@echo "... src/fem.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
