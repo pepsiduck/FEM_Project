@@ -166,6 +166,30 @@ src/fem.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/fem.c.s
 .PHONY : src/fem.c.s
 
+src/homework.o: src/homework.c.o
+.PHONY : src/homework.o
+
+# target to build an object file
+src/homework.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/homework.c.o
+.PHONY : src/homework.c.o
+
+src/homework.i: src/homework.c.i
+.PHONY : src/homework.i
+
+# target to preprocess a source file
+src/homework.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/homework.c.i
+.PHONY : src/homework.c.i
+
+src/homework.s: src/homework.c.s
+.PHONY : src/homework.s
+
+# target to generate assembly for a file
+src/homework.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/homework.c.s
+.PHONY : src/homework.c.s
+
 src/main.o: src/main.c.o
 .PHONY : src/main.o
 
@@ -203,6 +227,9 @@ help:
 	@echo "... src/fem.o"
 	@echo "... src/fem.i"
 	@echo "... src/fem.s"
+	@echo "... src/homework.o"
+	@echo "... src/homework.i"
+	@echo "... src/homework.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

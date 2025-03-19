@@ -1,1 +1,1 @@
-/usr/bin/cc CMakeFiles/FemPro.dir/src/fem.c.o CMakeFiles/FemPro.dir/src/main.c.o -o FemPro 
+/usr/bin/cc CMakeFiles/FemPro.dir/src/fem.c.o CMakeFiles/FemPro.dir/src/homework.c.o CMakeFiles/FemPro.dir/src/main.c.o -o FemPro  -lm 

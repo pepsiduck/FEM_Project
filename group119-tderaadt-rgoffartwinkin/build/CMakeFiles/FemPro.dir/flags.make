@@ -6,5 +6,5 @@ C_DEFINES = -Dgraphic
 
 C_INCLUDES = 
 
-C_FLAGS = 
+C_FLAGS = -std=gnu99
 
