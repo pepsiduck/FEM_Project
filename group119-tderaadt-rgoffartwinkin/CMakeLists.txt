@@ -2,12 +2,14 @@ cmake_minimum_required(VERSION 3.6)
 project(myFemProject)
 
 
-set(EXEC_NAME FemPro)
+set(EXEC_NAME myFem)
+#set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_C_STANDARD 99)
 
 
 # link the aforementioned libraries
-add_executable(${EXEC_NAME} src/main.c)
+add_executable(${EXEC_NAME} src/fem.c src/homework.c src/main.c)
+target_link_libraries(${EXEC_NAME} m)
 
 if(APPLE)
     target_compile_options(${EXEC_NAME} PRIVATE "-Wdeprecated-declarations")
