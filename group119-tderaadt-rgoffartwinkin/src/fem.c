@@ -254,7 +254,11 @@ void geoMeshWrite(const char *filename)
 
 int geoMeshRead(const char *filename) 
 {
-   FILE* file = fopen(filename,"r");
+   FILE* file = NULL;
+   if(strcmp(filename,"") == 0)
+     file = fopen("../data/mesh.txt","r");
+   else
+     file = fopen(filename,"r");
    if(!file)
      return -1;
    
@@ -735,9 +739,13 @@ femProblem *femElasticityCreate(femGeo* theGeometry,
     return theProblem;
 }
 
-femProblem *femElasticityRead(femGeo *theGeometry, const char *filename)//celle là 
+femProblem *femElasticityRead(femGeo *theGeometry, const char *filename) 
 {
-  FILE *file = fopen(filename, "r");
+  FILE *file = NULL;
+  if(strcmp(filename,"") == 0)
+    file = fopen("../data/problem.txt","r");
+  else
+    file = fopen(filename,"r");
   if (!file) {
     printf("Error at %s:%d\nUnable to open file %s\n", __FILE__, __LINE__, filename);
     return NULL;

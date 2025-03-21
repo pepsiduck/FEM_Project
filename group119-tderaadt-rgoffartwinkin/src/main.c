@@ -12,15 +12,17 @@
 #include "fem.h"
 #include <time.h>
 
-double fun(double x, double y) 
-{
-    return 1;
-}
-
 int main(int argc, char *argv[])
 {  
     //parsing
+    /*
     if(argc != 7)
+    {
+        printf("Incorrect numbert of arguments.\n");
+        exit(EXIT_FAILURE);
+    }*/
+
+    if(argc > 3)
     {
         printf("Incorrect numbert of arguments.\n");
         exit(EXIT_FAILURE);
@@ -28,8 +30,8 @@ int main(int argc, char *argv[])
 
     char fileDataName[MAXNAME] = "";
     char fileProblemName[MAXNAME] = "";
-    char fileOutName[MAXNAME] = "";
-
+    //char fileOutName[MAXNAME] = "";
+    /*
     for(unsigned short int i = 1; i < argc - 1; ++i)
     {
         if(strcmp("-fd",argv[i]) == 0)
@@ -38,13 +40,13 @@ int main(int argc, char *argv[])
             strcpy(fileProblemName,argv[i + 1]);
         else if(strcmp("-o",argv[i]) == 0)
             strcpy(fileOutName,argv[i + 1]);
-    }
-    
+    }*/
+    /*
     if((strcmp(fileDataName,"") == 0)||(strcmp(fileProblemName,"") == 0)||(strcmp(fileOutName,"") == 0))
     {
         printf("Arguments unspecified.\n");
         exit(EXIT_FAILURE);
-    }
+    }*/
     
 
     femGeo *geometry = geoGetGeometry();
@@ -76,8 +78,14 @@ int main(int argc, char *argv[])
     }
 
     clock_t finish = clock();
-
+    /*
     if(femSolutionWrite(geometry->theNodes->nNodes, 2, soluce, fileOutName) == -1)
+    {
+        printf("Unable to open result file.\n");
+        exit(EXIT_FAILURE);
+    }*/
+
+    if(femSolutionWrite(geometry->theNodes->nNodes, 2, soluce, "output.txt") == -1)
     {
         printf("Unable to open result file.\n");
         exit(EXIT_FAILURE);

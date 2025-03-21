@@ -43,6 +43,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/FemPro.dir/DependInfo.cmake"
+  "CMakeFiles/myFem.dir/DependInfo.cmake"
   "CMakeFiles/run.dir/DependInfo.cmake"
   )

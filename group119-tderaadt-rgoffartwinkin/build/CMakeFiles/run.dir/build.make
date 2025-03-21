@@ -66,9 +66,9 @@ include CMakeFiles/run.dir/compiler_depend.make
 # Include the progress variables for this target.
 include CMakeFiles/run.dir/progress.make
 
-CMakeFiles/run: FemPro
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/pepsiduck/Bureau/FEM_Project/group119-tderaadt-rgoffartwinkin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) ./FemPro
-	./FemPro
+CMakeFiles/run: myFem
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/pepsiduck/Bureau/FEM_Project/group119-tderaadt-rgoffartwinkin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) ./myFem
+	./myFem
 
 run: CMakeFiles/run
 run: CMakeFiles/run.dir/build.make

@@ -117,17 +117,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named FemPro
+# Target rules for targets named myFem
 
 # Build rule for target.
-FemPro: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 FemPro
-.PHONY : FemPro
+myFem: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 myFem
+.PHONY : myFem
 
 # fast build rule for target.
-FemPro/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/build
-.PHONY : FemPro/fast
+myFem/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myFem.dir/build.make CMakeFiles/myFem.dir/build
+.PHONY : myFem/fast
 
 #=============================================================================
 # Target rules for targets named run
@@ -147,7 +147,7 @@ src/fem.o: src/fem.c.o
 
 # target to build an object file
 src/fem.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/fem.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myFem.dir/build.make CMakeFiles/myFem.dir/src/fem.c.o
 .PHONY : src/fem.c.o
 
 src/fem.i: src/fem.c.i
@@ -155,7 +155,7 @@ src/fem.i: src/fem.c.i
 
 # target to preprocess a source file
 src/fem.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/fem.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myFem.dir/build.make CMakeFiles/myFem.dir/src/fem.c.i
 .PHONY : src/fem.c.i
 
 src/fem.s: src/fem.c.s
@@ -163,7 +163,7 @@ src/fem.s: src/fem.c.s
 
 # target to generate assembly for a file
 src/fem.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/fem.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myFem.dir/build.make CMakeFiles/myFem.dir/src/fem.c.s
 .PHONY : src/fem.c.s
 
 src/homework.o: src/homework.c.o
@@ -171,7 +171,7 @@ src/homework.o: src/homework.c.o
 
 # target to build an object file
 src/homework.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/homework.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myFem.dir/build.make CMakeFiles/myFem.dir/src/homework.c.o
 .PHONY : src/homework.c.o
 
 src/homework.i: src/homework.c.i
@@ -179,7 +179,7 @@ src/homework.i: src/homework.c.i
 
 # target to preprocess a source file
 src/homework.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/homework.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myFem.dir/build.make CMakeFiles/myFem.dir/src/homework.c.i
 .PHONY : src/homework.c.i
 
 src/homework.s: src/homework.c.s
@@ -187,7 +187,7 @@ src/homework.s: src/homework.c.s
 
 # target to generate assembly for a file
 src/homework.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/homework.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myFem.dir/build.make CMakeFiles/myFem.dir/src/homework.c.s
 .PHONY : src/homework.c.s
 
 src/main.o: src/main.c.o
@@ -195,7 +195,7 @@ src/main.o: src/main.c.o
 
 # target to build an object file
 src/main.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/main.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myFem.dir/build.make CMakeFiles/myFem.dir/src/main.c.o
 .PHONY : src/main.c.o
 
 src/main.i: src/main.c.i
@@ -203,7 +203,7 @@ src/main.i: src/main.c.i
 
 # target to preprocess a source file
 src/main.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/main.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myFem.dir/build.make CMakeFiles/myFem.dir/src/main.c.i
 .PHONY : src/main.c.i
 
 src/main.s: src/main.c.s
@@ -211,7 +211,7 @@ src/main.s: src/main.c.s
 
 # target to generate assembly for a file
 src/main.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/FemPro.dir/build.make CMakeFiles/FemPro.dir/src/main.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myFem.dir/build.make CMakeFiles/myFem.dir/src/main.c.s
 .PHONY : src/main.c.s
 
 # Help Target
@@ -223,7 +223,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... run"
-	@echo "... FemPro"
+	@echo "... myFem"
 	@echo "... src/fem.o"
 	@echo "... src/fem.i"
 	@echo "... src/fem.s"
