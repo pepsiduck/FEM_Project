@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }*/
 
-    if(femSolutionWrite(geometry->theNodes->nNodes, 2, soluce, "output.txt") == -1)
+    if(femSolutionWrite(geometry->theNodes->nNodes, 2, soluce, "result.txt") == -1)
     {
         printf("Unable to open result file.\n");
         exit(EXIT_FAILURE);

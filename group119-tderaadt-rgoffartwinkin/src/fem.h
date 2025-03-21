@@ -16,9 +16,7 @@
 #include <math.h>
 #include <string.h>
 
-
 #define ErrorScan(a)   femErrorScan(a,__LINE__,__FILE__)
-//#define ErrorGmsh(a)   femErrorGmsh(a,__LINE__,__FILE__)
 #define Error(a)       femError(a,__LINE__,__FILE__)
 #define Warning(a)     femWarning(a,  __LINE__, __FILE__)
 #define FALSE 0 
@@ -31,12 +29,13 @@
 typedef enum {FEM_TRIANGLE,FEM_QUAD,FEM_EDGE} femElementType;
 typedef enum {DIRICHLET_X,DIRICHLET_Y,DIRICHLET_XY,NEUMANN_X,NEUMANN_Y, UNDEFINED=-1} femBoundaryType;
 typedef enum {PLANAR_STRESS,PLANAR_STRAIN,AXISYM} femElasticCase;
-
+typedef enum {FEM_NO,FEM_XNUM,FEM_YNUM,FEM_CUTHILL_MCKEE} femRenumType;
 
 typedef struct {
     int nNodes;
     double *X;
     double *Y;
+    int *number;
 } femNodes;
 
 typedef struct {
@@ -100,7 +99,6 @@ typedef struct {
 typedef struct {
     double E,nu,rho;
     double gx, gy;
-    //double g;
     double A,B,C;
     int planarStrainStress;
     int nBoundaryConditions;
@@ -122,14 +120,24 @@ femGeo*             geoGetGeometry();
 double              geoSize(double x, double y);
 double              geoSizeDefault(double x, double y);
 void                geoSetSizeCallback(double (*geoSize)(double x, double y));
-//void                geoMeshGenerate();
-//void                geoMeshImport();
 void                geoMeshPrint();
 void                geoMeshWrite(const char *filename);
-int                geoMeshRead(const char *filename);
+int                 geoMeshRead(const char *filename);
 void                geoSetDomainName(int iDomain, char *name);
 int                 geoGetDomain(char *name);
 void                geoFinalize();
+
+int                 femMinIndex(int *tab, int n);
+int                 femMaxIndex(int *tab, int n);
+
+int                 cmp_xy(const void *a, const void *b);
+void                reverse_tab(int *tab, int n);
+void                femMeshDegrees(femMesh *theMesh, int *degrees, int *redundancy, int n);
+void                femMeshNeighboors(femMesh *theMesh, int **neighboors, int *degrees, int *redundancy, int n);
+int                 cmp_degrees(const void *a, const void *b);
+void                advance_queue(int *queue, int n); //optimized for -1 values
+int                 isInArray(int *tab, int n, int arg); //optimized for -1 values
+int                 femMeshRenumber(femMesh *theMesh, femRenumType renumType);
 
 femProblem*         femElasticityCreate(femGeo* theGeometry, 
                                       double E, double nu, double rho, double gx, double gy, femElasticCase iCase);
@@ -171,7 +179,6 @@ double              femMin(double *x, int n);
 double              femMax(double *x, int n);
 void                femError(char *text, int line, char *file);
 void                femErrorScan(int test, int line, char *file);
-//void                femErrorGmsh(int test, int line, char *file);
 void                femWarning(char *text, int line, char *file);
 
 
