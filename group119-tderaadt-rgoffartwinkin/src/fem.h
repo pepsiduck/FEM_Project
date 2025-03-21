@@ -88,6 +88,12 @@ typedef struct {
     int size;
 } femFullSystem;
 
+typedef struct {
+    double *B;
+    double **A;        
+    int size;
+    int band;        
+} femBandSystem;
 
 typedef struct {
     femDomain* domain;
@@ -129,6 +135,7 @@ void                geoFinalize();
 
 int                 femMinIndex(int *tab, int n);
 int                 femMaxIndex(int *tab, int n);
+int                 abs_value(int arg);
 
 int                 cmp_xy(const void *a, const void *b);
 void                reverse_tab(int *tab, int n);
@@ -138,6 +145,16 @@ int                 cmp_degrees(const void *a, const void *b);
 void                advance_queue(int *queue, int n); //optimized for -1 values
 int                 isInArray(int *tab, int n, int arg); //optimized for -1 values
 int                 femMeshRenumber(femMesh *theMesh, femRenumType renumType);
+
+int                 femMeshComputeBand(femMesh *theMesh);
+femBandSystem*      femBandSystemCreate(int size, int band);
+void                femBandSystemFree(femBandSystem* myBandSystem);
+void                femBandSystemInit(femBandSystem *myBand);
+void                femBandSystemPrint(femBandSystem *myBand);
+void                femBandSystemPrintInfos(femBandSystem *myBand);
+double*             femBandSystemEliminate(femBandSystem *myBand);
+void                femBandSystemAssemble(femBandSystem* myBandSystem, double *Aloc, double *Bloc, int *map, int nLoc);
+double              femBandSystemGet(femBandSystem* myBandSystem, int i, int j);
 
 femProblem*         femElasticityCreate(femGeo* theGeometry, 
                                       double E, double nu, double rho, double gx, double gy, femElasticCase iCase);

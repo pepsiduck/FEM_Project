@@ -263,6 +263,13 @@ int femMaxIndex(int *tab, int n)
     return index;
 }
 
+int abs_value(int arg)
+{
+    if(arg > 0)
+        return arg;
+    return -1 * arg;
+}
+
 double *global_xy;
 
 int cmp_xy(const void *a, const void *b)
@@ -306,10 +313,10 @@ void femMeshDegrees(femMesh *theMesh, int *degrees, int *redundancy, int n)
                         degrees[d] += 1;
                         redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + 1) % theMesh->nLocalNode)]] = 1;
                     }
-                    if(redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i - 1) % theMesh->nLocalNode)]] == -1)
+                    if(redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + theMesh->nLocalNode - 1) % theMesh->nLocalNode)]] == -1)
                     {
                         degrees[d] += 1;
-                        redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i - 1) % theMesh->nLocalNode)]] = 1;
+                        redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + theMesh->nLocalNode - 1) % theMesh->nLocalNode)]] = 1;
                     }   
                 }
             }
@@ -352,10 +359,10 @@ void femMeshNeighboors(femMesh *theMesh, int **neighboors, int *degrees, int *re
                         redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + 1) % theMesh->nLocalNode)]] = 1;
                         counter++;
                     }
-                    if(redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i - 1) % theMesh->nLocalNode)]] == -1)
+                    if(redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + theMesh->nLocalNode - 1) % theMesh->nLocalNode)]] == -1)
                     {
-                        neighboors[d][counter] = theMesh->elem[elem * theMesh->nLocalNode + ((i - 1) % theMesh->nLocalNode)];
-                        redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i - 1) % theMesh->nLocalNode)]] = 1;
+                        neighboors[d][counter] = theMesh->elem[elem * theMesh->nLocalNode + ((i  + theMesh->nLocalNode - 1) % theMesh->nLocalNode)];
+                        redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + theMesh->nLocalNode - 1) % theMesh->nLocalNode)]] = 1;
                         counter++;
                     }   
                 }
@@ -442,6 +449,7 @@ int femMeshRenumber(femMesh *theMesh, femRenumType renumType)
             int *R = (int*) malloc(sizeof(int)*theMesh->nodes->nNodes);
         
             femMeshDegrees(theMesh, degrees, R ,theMesh->nodes->nNodes);
+
             for (int i = 0; i < theMesh->nodes->nNodes; i++)
                 neighboors[i] = (int*) malloc(sizeof(int)*degrees[i]);
 
@@ -468,13 +476,13 @@ int femMeshRenumber(femMesh *theMesh, femRenumType renumType)
                 buffer = Q[0]; 
                 advance_queue(Q, theMesh->nodes->nNodes);
                 counter_queue--; 
-                if(isInArray(R, theMesh->nodes->nNodes, Q[0]) == FALSE)
+                if(isInArray(R, theMesh->nodes->nNodes, buffer) == FALSE)
                 {
                     R[counter_R] = buffer;
                     counter_R++;
                     for(int i = 0; i < degrees[buffer]; ++i)
                     {
-                        if(isInArray(Q, theMesh->nodes->nNodes, neighboors[buffer][i]) == FALSE)
+                        if(isInArray(Q, theMesh->nodes->nNodes, neighboors[buffer][i]) == FALSE && isInArray(R, theMesh->nodes->nNodes, neighboors[buffer][i]) == FALSE)
                         {
                             Q[counter_queue] = neighboors[buffer][i];
                             counter_queue++;
@@ -485,7 +493,7 @@ int femMeshRenumber(femMesh *theMesh, femRenumType renumType)
 
             reverse_tab(R, theMesh->nodes->nNodes);
             for (int i = 0; i < theMesh->nodes->nNodes; i++)
-                theMesh->nodes->number[i] = R[i];
+                theMesh->nodes->number[R[i]] = i;
                         
             for (int i = 0; i < theMesh->nodes->nNodes; i++)
                 free(neighboors[i]);
@@ -502,6 +510,90 @@ int femMeshRenumber(femMesh *theMesh, femRenumType renumType)
     }
 
     return 0;
+}
+
+int femMeshComputeBand(femMesh *theMesh)
+{
+    int myBand = 0;
+    for(int n = 0; n < theMesh->nElem; ++n)
+    {
+        for(int i = 0; i < theMesh->nLocalNode; ++i)
+        {
+            for(int j = i + 1; j < theMesh->nLocalNode; ++j)
+            {
+                if(abs_value(theMesh->nodes->number[theMesh->elem[theMesh->nLocalNode * n + i]] - theMesh->nodes->number[theMesh->elem[theMesh->nLocalNode * n + j]]) > myBand)
+                    myBand = abs_value(theMesh->nodes->number[theMesh->elem[theMesh->nLocalNode * n + i]] - theMesh->nodes->number[theMesh->elem[theMesh->nLocalNode * n + j]]);    
+            }
+        }
+    }
+    return myBand + 1;
+}
+
+femBandSystem *femBandSystemCreate(int size, int band)
+{
+    femBandSystem *myBandSystem = malloc(sizeof(femBandSystem));
+    myBandSystem->B = malloc(sizeof(double)*size*(band+1));
+    myBandSystem->A = malloc(sizeof(double*)*size);        
+    myBandSystem->size = size;
+    myBandSystem->band = band;
+    myBandSystem->A[0] = myBandSystem->B + size;
+    int i;
+    for (i=1 ; i < size ; i++) 
+        myBandSystem->A[i] = myBandSystem->A[i-1] + band - 1;
+    femBandSystemInit(myBandSystem);
+    return(myBandSystem);
+}
+ 
+void femBandSystemFree(femBandSystem *myBandSystem)
+{
+    free(myBandSystem->B);
+    free(myBandSystem->A); 
+    free(myBandSystem);
+}
+ 
+void femBandSystemInit(femBandSystem *myBandSystem)
+{
+    int i;
+    int size = myBandSystem->size;
+    int band = myBandSystem->band;
+    for (i=0 ; i < size*(band+1) ; i++) 
+        myBandSystem->B[i] = 0;        
+}
+ 
+void femBandSystemPrint(femBandSystem *myBand)
+{
+    double  **A, *B;
+    int     i, j, band, size;
+    A    = myBand->A;
+    B    = myBand->B;
+    size = myBand->size;
+    band = myBand->band;
+
+    for (i=0; i < size; i++) {
+        for (j=i; j < i+band; j++)
+            if (A[i][j] == 0) printf("         ");   
+            else              printf(" %+.1e",A[i][j]);
+        printf(" :  %+.1e \n",B[i]); }
+}
+  
+void femBandSystemPrintInfos(femBandSystem *myBand)
+{
+    int size = myBand->size;
+    int band = myBand->band;
+    printf(" \n");
+    printf("    Banded Gaussian elimination \n");
+    printf("    Storage informations \n");
+    printf("    Matrix size      : %8d\n",size);
+    printf("    Matrix band      : %8d\n",band);
+    printf("    Bytes required   : %8d\n",(int)sizeof(double)*size*(band+1));     
+}
+
+
+double femBandSystemGet(femBandSystem* myBandSystem, int myRow, int myCol)
+{
+    double value = 0;
+    if (myCol >= myRow && myCol < myRow+myBandSystem->band)  value = myBandSystem->A[myRow][myCol]; 
+    return(value);
 }
 
 static const double _gaussQuad4Xsi[4]    = {-0.577350269189626,-0.577350269189626, 0.577350269189626, 0.577350269189626};
