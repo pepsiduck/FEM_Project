@@ -33,13 +33,9 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    femMeshRenumber(geometry->theElements, FEM_CUTHILL_MCKEE);
-
-    printf("\n\n %d\n",femMeshComputeBand(geometry->theElements));
-
     geoMeshPrint();
     
-    femProblem *problem = femElasticityRead(geometry,fileProblemName);
+    femProblem *problem = femElasticityRead(geometry,fileProblemName,FEM_BAND_SYSTEM,FEM_CUTHILL_MCKEE);
     if(problem == NULL)
     {
         printf("Unable to open problem file.\n");
@@ -50,7 +46,21 @@ int main(int argc, char *argv[])
     
     clock_t start = clock();
     
-    double *soluce = femElasticitySolve(problem);
+    double *soluce = NULL;
+    switch(problem->system->type)
+    {
+        case FEM_FULL_SYSTEM :
+            soluce = femElasticitySolveFull(problem);
+            break;
+        case FEM_BAND_SYSTEM :
+            soluce = femElasticitySolveBand(problem);
+            break;
+        default :
+            printf("System type not handled.\n");
+            exit(EXIT_FAILURE);
+            break;
+    }
+    
     if(soluce == NULL)
     {
         printf("Aaah eto, bleh.\n");

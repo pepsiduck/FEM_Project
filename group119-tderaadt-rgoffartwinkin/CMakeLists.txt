@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD 99)
 
 
 # link the aforementioned libraries
-add_executable(${EXEC_NAME} src/fem.c src/homework.c src/main.c)
+add_executable(${EXEC_NAME} src/fem.c src/main.c)
 target_link_libraries(${EXEC_NAME} m)
 
 if(APPLE)
