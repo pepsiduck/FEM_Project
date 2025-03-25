@@ -20,10 +20,7 @@ double geoGmshSize(int dim, int tag, double x, double y, double z, double lc, vo
 void geoInitialize() 
 {
     int ierr;
-    theGeometry.geoSize = geoSizeDefault;/*
-    gmshInitialize(0,NULL,1,0,&ierr);                         ErrorGmsh(ierr);
-    gmshModelAdd("MyGeometry",&ierr);                         ErrorGmsh(ierr);
-    gmshModelMeshSetSizeCallback(geoGmshSize,NULL,&ierr);     ErrorGmsh(ierr);*/
+    theGeometry.geoSize = geoSizeDefault;
     theGeometry.theNodes = NULL;
     theGeometry.theElements = NULL;
     theGeometry.theEdges = NULL;
@@ -38,6 +35,7 @@ void geoFinalize()
     if (theGeometry.theNodes) {
         free(theGeometry.theNodes->X);
         free(theGeometry.theNodes->Y);
+        free(theGeometry.theNodes->number);
         free(theGeometry.theNodes); }
     if (theGeometry.theElements) {
         free(theGeometry.theElements->elem);
@@ -54,119 +52,8 @@ void geoFinalize()
 
 void geoSetSizeCallback(double (*geoSize)(double x, double y)) 
 {
-    theGeometry.geoSize = geoSize; }
-
-/*
-void geoMeshImport() 
-{
-    int ierr;
-    
-    
-    size_t nNode,n,m,*node;
-    double *xyz,*trash;
-    gmshModelMeshGetNodes(&node,&nNode,&xyz,&n,
-                         &trash,&m,-1,-1,0,0,&ierr);          ErrorGmsh(ierr);                         
-    femNodes *theNodes = malloc(sizeof(femNodes));
-    theNodes->nNodes = nNode;
-    theNodes->X = malloc(sizeof(double)*(theNodes->nNodes));
-    theNodes->Y = malloc(sizeof(double)*(theNodes->nNodes));
-    for (int i = 0; i < theNodes->nNodes; i++){
-        theNodes->X[i] = xyz[3*node[i]-3];
-        theNodes->Y[i] = xyz[3*node[i]-2]; }
-    theGeometry.theNodes = theNodes;
-    gmshFree(node);
-    gmshFree(xyz);
-    gmshFree(trash);
-    printf("Geo     : Importing %d nodes \n",theGeometry.theNodes->nNodes);
-       
-        
-    size_t nElem, *elem;
-    gmshModelMeshGetElementsByType(1,&elem,&nElem,
-                               &node,&nNode,-1,0,1,&ierr);    ErrorGmsh(ierr);
-    femMesh *theEdges = malloc(sizeof(femMesh));
-    theEdges->nLocalNode = 2;
-    theEdges->nodes = theNodes;
-    theEdges->nElem = nElem;  
-    theEdges->elem = malloc(sizeof(int)*2*theEdges->nElem);
-    for (int i = 0; i < theEdges->nElem; i++)
-        for (int j = 0; j < theEdges->nLocalNode; j++)
-            theEdges->elem[2*i+j] = node[2*i+j]-1;  
-    theGeometry.theEdges = theEdges;
-    int shiftEdges = elem[0];
-    gmshFree(node);
-    gmshFree(elem);
-    printf("Geo     : Importing %d edges \n",theEdges->nElem);
-  
-    gmshModelMeshGetElementsByType(2,&elem,&nElem,
-                               &node,&nNode,-1,0,1,&ierr);    ErrorGmsh(ierr);
-    if (nElem != 0) {
-      femMesh *theElements = malloc(sizeof(femMesh));
-      theElements->nLocalNode = 3;
-      theElements->nodes = theNodes;
-      theElements->nElem = nElem;  
-      theElements->elem = malloc(sizeof(int)*3*theElements->nElem);
-      for (int i = 0; i < theElements->nElem; i++)
-          for (int j = 0; j < theElements->nLocalNode; j++)
-              theElements->elem[3*i+j] = node[3*i+j]-1;  
-      theGeometry.theElements = theElements;
-      gmshFree(node);
-      gmshFree(elem);
-      printf("Geo     : Importing %d triangles \n",theElements->nElem); }
-    
-    int nElemTriangles = nElem;
-    gmshModelMeshGetElementsByType(3,&elem,&nElem,
-                               &node,&nNode,-1,0,1,&ierr);    ErrorGmsh(ierr);
-    if (nElem != 0 && nElemTriangles != 0)  
-      Error("Cannot consider hybrid geometry with triangles and quads :-(");                       
-                               
-    if (nElem != 0) {
-      femMesh *theElements = malloc(sizeof(femMesh));
-      theElements->nLocalNode = 4;
-      theElements->nodes = theNodes;
-      theElements->nElem = nElem;  
-      theElements->elem = malloc(sizeof(int)*4*theElements->nElem);
-      for (int i = 0; i < theElements->nElem; i++)
-          for (int j = 0; j < theElements->nLocalNode; j++)
-              theElements->elem[4*i+j] = node[4*i+j]-1;  
-      theGeometry.theElements = theElements;
-      gmshFree(node);
-      gmshFree(elem);
-      printf("Geo     : Importing %d quads \n",theElements->nElem); }
-
-    
-  
-    int *dimTags;
-    gmshModelGetEntities(&dimTags,&n,1,&ierr);        ErrorGmsh(ierr);
-    theGeometry.nDomains = n/2;
-    theGeometry.theDomains = malloc(sizeof(femDomain*)*n/2);
-    printf("Geo     : Importing %d entities \n",theGeometry.nDomains);
-
-    for (int i=0; i < n/2; i++) {
-        int dim = dimTags[2*i+0];
-        int tag = dimTags[2*i+1];
-        femDomain *theDomain = malloc(sizeof(femDomain)); 
-        theGeometry.theDomains[i] = theDomain;
-        theDomain->mesh = theEdges;
-        sprintf(theDomain->name, "Entity %d ",tag-1);
-         
-        int *elementType;
-        size_t nElementType, **elementTags, *nElementTags, nnElementTags, **nodesTags, *nNodesTags, nnNodesTags; 
-        gmshModelMeshGetElements(&elementType, &nElementType, &elementTags, &nElementTags, &nnElementTags, &nodesTags, &nNodesTags, &nnNodesTags, dim, tag, &ierr);
-        theDomain->nElem = nElementTags[0];
-        theDomain->elem = malloc(sizeof(int)*2*theDomain->nElem); 
-        for (int j = 0; j < theDomain->nElem; j++) {
-            theDomain->elem[j] = elementTags[0][j] - shiftEdges; }
-        printf("Geo     : Entity %d : %d elements \n",i,theDomain->nElem);
-        gmshFree(nElementTags);
-        gmshFree(nNodesTags);
-        gmshFree(elementTags);
-        gmshFree(nodesTags);
-        gmshFree(elementType); }
-    gmshFree(dimTags);
- 
-    return;
-
-}*/
+    theGeometry.geoSize = geoSize; 
+}
 
 void geoMeshPrint() 
 {
@@ -269,8 +156,9 @@ int geoMeshRead(const char *filename)
    ErrorScan(fscanf(file, "Number of nodes %d \n", &theNodes->nNodes));
    theNodes->X = malloc(sizeof(double)*(theNodes->nNodes));
    theNodes->Y = malloc(sizeof(double)*(theNodes->nNodes));
+   theNodes->number = malloc(sizeof(int)*(theNodes->nNodes));
    for (int i = 0; i < theNodes->nNodes; i++) {
-       ErrorScan(fscanf(file,"%d : %le %le \n",&trash,&theNodes->X[i],&theNodes->Y[i]));} 
+       ErrorScan(fscanf(file,"%d : %le %le \n",&theNodes->number[i],&theNodes->X[i],&theNodes->Y[i]));} 
 
    femMesh *theEdges = malloc(sizeof(femMesh));
    theGeometry.theEdges = theEdges;
@@ -339,41 +227,374 @@ int geoGetDomain(char *name)
     return theIndex;
             
 }
-/*
-void geoMeshGenerate() {
-    femGeo* theGeometry = geoGetGeometry();
 
-    double w = theGeometry->LxPlate;
-    double h = theGeometry->LyPlate;
 
-    int ierr;
-    double r = w/4;
-    int idRect = gmshModelOccAddRectangle(0.0,0.0,0.0,w,h,-1,0.0,&ierr); 
-    int idDisk = gmshModelOccAddDisk(w/2.0,h/2.0,0.0,r,r,-1,NULL,0,NULL,0,&ierr); 
-    int idSlit = gmshModelOccAddRectangle(w/2.0,h/2.0-r,0.0,w,2.0*r,-1,0.0,&ierr); 
-    int rect[] = {2,idRect};
-    int disk[] = {2,idDisk};
-    int slit[] = {2,idSlit};
+int femMinIndex(int *tab, int n)
+{
+    if(n <= 0)
+        return FALSE;
+    int minimal = tab[0];
+    int index = 0;
+    for(int i = 1; i < n; ++i)
+    {
+        if(tab[i] < minimal)
+        {
+            index = i;
+            minimal = tab[i];
+        }
+    }
+    return index;
+}
 
-    gmshModelOccCut(rect,2,disk,2,NULL,NULL,NULL,NULL,NULL,-1,1,1,&ierr); 
-    gmshModelOccCut(rect,2,slit,2,NULL,NULL,NULL,NULL,NULL,-1,1,1,&ierr); 
-    gmshModelOccSynchronize(&ierr); 
+int femMaxIndex(int *tab, int n)
+{
+    if(n <= 0)
+        return FALSE;
+    int maximal = tab[0];
+    int index = 0;
+    for(int i = 1; i < n; ++i)
+    {
+        if(tab[i] > maximal)
+        {
+            index = i;
+            maximal = tab[i];
+        }
+    }
+    return index;
+}
 
-    if (theGeometry->elementType == FEM_QUAD) {
-        gmshOptionSetNumber("Mesh.SaveAll",1,&ierr);
-        gmshOptionSetNumber("Mesh.RecombineAll",1,&ierr);
-        gmshOptionSetNumber("Mesh.Algorithm",11,&ierr);  
-        gmshOptionSetNumber("Mesh.SmoothRatio", 21.5, &ierr);  
-        gmshOptionSetNumber("Mesh.RecombinationAlgorithm",1.0,&ierr); 
-        gmshModelGeoMeshSetRecombine(2,1,45,&ierr);  
-        gmshModelMeshGenerate(2,&ierr);  }
+int abs_value(int arg)
+{
+    if(arg > 0)
+        return arg;
+    return -1 * arg;
+}
+
+double *global_xy;
+
+int cmp_xy(const void *a, const void *b)
+{
+    int *A = (int *)a;
+    int *B = (int *)b;
+
+    if(global_xy[*A] < global_xy[*B])
+        return -1;
+    else if(global_xy[*A] > global_xy[*B])
+        return 1;
+    return 0; 
+}
+
+void reverse_tab(int *tab, int n)
+{
+    int buffer;
+    for(int i = 0; i < n / 2; ++i)
+    {
+        buffer = tab[i];
+        tab[i] = tab[n - 1 - i];
+        tab[n - 1 - i] = buffer;
+    }
+}
+
+void femMeshDegrees(femMesh *theMesh, int *degrees, int *redundancy, int n)
+{
+    for(int d = 0; d < n; ++d)
+    {
+        degrees[d] = 0;
+        for(int d2 = 0; d2 < n; ++d2)
+            redundancy[d2] = -1;
+        for(int elem = 0; elem < theMesh->nElem; ++elem)
+        {
+            for(int i = 0; i < theMesh->nLocalNode; ++i)
+            {
+                if(theMesh->elem[elem * theMesh->nLocalNode + i] == d)
+                {
+                    if(redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + 1) % theMesh->nLocalNode)]] == -1)
+                    {
+                        degrees[d] += 1;
+                        redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + 1) % theMesh->nLocalNode)]] = 1;
+                    }
+                    if(redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + theMesh->nLocalNode - 1) % theMesh->nLocalNode)]] == -1)
+                    {
+                        degrees[d] += 1;
+                        redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + theMesh->nLocalNode - 1) % theMesh->nLocalNode)]] = 1;
+                    }   
+                }
+            }
+        }
+    }
+}
+
+int *degrees_global;
+
+int cmp_degrees(const void *a, const void *b)
+{
+    int *A = (int *)a;
+    int *B = (int *)b;
+    
+    if(degrees_global[*A] < degrees_global[*B])
+        return -1;
+    if(degrees_global[*A] > degrees_global[*B])
+        return 1;
+    return 0;
+}
+
+void femMeshNeighboors(femMesh *theMesh, int **neighboors, int *degrees, int *redundancy, int n)
+{
+    int counter;
+    degrees_global = degrees;
+    for(int d = 0; d < n; ++d)
+    {
+        counter = 0;
+        for(int d2 = 0; d2 < n; ++d2)
+            redundancy[d2] = -1;
+        for(int elem = 0; elem < theMesh->nElem; ++elem)
+        {
+            for(int i = 0; i < theMesh->nLocalNode; ++i)
+            {
+                if(theMesh->elem[elem * theMesh->nLocalNode + i] == d)
+                {
+                    if(redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + 1) % theMesh->nLocalNode)]] == -1)
+                    {
+                        neighboors[d][counter] = theMesh->elem[elem * theMesh->nLocalNode + ((i + 1) % theMesh->nLocalNode)];
+                        redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + 1) % theMesh->nLocalNode)]] = 1;
+                        counter++;
+                    }
+                    if(redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + theMesh->nLocalNode - 1) % theMesh->nLocalNode)]] == -1)
+                    {
+                        neighboors[d][counter] = theMesh->elem[elem * theMesh->nLocalNode + ((i  + theMesh->nLocalNode - 1) % theMesh->nLocalNode)];
+                        redundancy[theMesh->elem[elem * theMesh->nLocalNode + ((i + theMesh->nLocalNode - 1) % theMesh->nLocalNode)]] = 1;
+                        counter++;
+                    }   
+                }
+            }
+        }
+        
+        qsort(neighboors[d],degrees[d],sizeof(int),cmp_degrees);
+
+    }
+}
+
+void advance_queue(int *queue, int n) //optimized for -1 values
+{
+    for(int i = 0; i < n - 1; ++i)
+    {
+        if(queue[i] != -1)
+            queue[i] = queue[i + 1];
+        else
+            break;
+    }
+    queue[n - 1] = -1;
+}
+
+int isInArray(int *tab, int n, int arg) //optimized for -1 values
+{
+    for(int i = 0; i < n; ++i)
+    {
+        if(tab[i] == -1)
+            return FALSE;
+        if(tab[i] == arg)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+int femMeshRenumber(femMesh *theMesh, femRenumType renumType)
+{
+    
+    double *array = NULL;
+    double buffer;
+    int swapped;
+    int *tab;
+    switch (renumType) {
+        case FEM_NO :
+            for (int i = 0; i < theMesh->nodes->nNodes; i++) 
+                theMesh->nodes->number[i] = i;
+            break;
+    case FEM_XNUM :
+            tab = (int *) malloc(sizeof(int)*theMesh->nodes->nNodes);
+            for (int i = 0; i < theMesh->nodes->nNodes; i++) 
+                tab[i] = i;
+
+            global_xy = theMesh->nodes->X;
+
+            qsort(tab, theMesh->nodes->nNodes, sizeof(int) , cmp_xy);
+
+            for (int i = 0; i < theMesh->nodes->nNodes; i++) 
+                theMesh->nodes->number[tab[i]] = i;
+            
+            free(tab);
+            
+            break;
+        case FEM_YNUM : 
+            tab = (int *) malloc(sizeof(int)*theMesh->nodes->nNodes);
+            for (int i = 0; i < theMesh->nodes->nNodes; i++) 
+                tab[i] = i;
+
+            global_xy = theMesh->nodes->Y;
+            
+            qsort(tab, theMesh->nodes->nNodes, sizeof(int) , cmp_xy);
+
+            for (int i = 0; i < theMesh->nodes->nNodes; i++) 
+                theMesh->nodes->number[tab[i]] = i;
+            
+            free(tab);
+            
+            break;
+        case FEM_CUTHILL_MCKEE :
+            for (int i = 0; i < theMesh->nodes->nNodes; i++) 
+                theMesh->nodes->number[i] = i;
+
+            int *degrees = (int*) malloc(sizeof(int)*theMesh->nodes->nNodes);
+            int **neighboors = (int**) malloc(sizeof(int*)*theMesh->nodes->nNodes);
+            int *R = (int*) malloc(sizeof(int)*theMesh->nodes->nNodes);
+        
+            femMeshDegrees(theMesh, degrees, R ,theMesh->nodes->nNodes);
+
+            for (int i = 0; i < theMesh->nodes->nNodes; i++)
+                neighboors[i] = (int*) malloc(sizeof(int)*degrees[i]);
+
+            femMeshNeighboors(theMesh, neighboors, degrees, R, theMesh->nodes->nNodes);
+
+            for(int i = 0; i < theMesh->nodes->nNodes; ++i)
+                R[i] = -1;
+
+            int *Q = (int*) malloc(sizeof(int)*theMesh->nodes->nNodes);
+            for(int i = 0; i < theMesh->nodes->nNodes; ++i)
+                Q[i] = -1;
+
+            R[0] = femMinIndex(degrees,theMesh->nodes->nNodes);
+            for(int d = 0; d < degrees[R[0]]; ++d)
+                Q[d] = neighboors[R[0]][d];
+
+            int counter_queue = degrees[R[0]];  // index du premier élément égal de -1 dans Q. En principe c'est jamais égal à 0
+            int counter_R = 1; //index du premier élément égal à -1 dans R
+            int buffer;            
+
+            while(counter_R < theMesh->nodes->nNodes)
+            {
+                //En principe, je peux pas avoir ici Q[0] = -1
+                buffer = Q[0]; 
+                advance_queue(Q, theMesh->nodes->nNodes);
+                counter_queue--; 
+                if(isInArray(R, theMesh->nodes->nNodes, buffer) == FALSE)
+                {
+                    R[counter_R] = buffer;
+                    counter_R++;
+                    for(int i = 0; i < degrees[buffer]; ++i)
+                    {
+                        if(isInArray(Q, theMesh->nodes->nNodes, neighboors[buffer][i]) == FALSE && isInArray(R, theMesh->nodes->nNodes, neighboors[buffer][i]) == FALSE)
+                        {
+                            Q[counter_queue] = neighboors[buffer][i];
+                            counter_queue++;
+                        }
+                    }
+                }
+            }
+
+            reverse_tab(R, theMesh->nodes->nNodes);
+            for (int i = 0; i < theMesh->nodes->nNodes; i++)
+                theMesh->nodes->number[R[i]] = i;
+                        
+            for (int i = 0; i < theMesh->nodes->nNodes; i++)
+                free(neighboors[i]);
+            free(Q);
+            free(neighboors);
+            free(degrees);
+            free(R);
+
+            break;
+        default : 
+            Error("Unexpected renumbering option"); 
+            return -1;
+            break;
+    }
+
+    return 0;
+}
+
+int femMeshComputeBand(femMesh *theMesh)
+{
+    int myBand = 0;
+    for(int n = 0; n < theMesh->nElem; ++n)
+    {
+        for(int i = 0; i < theMesh->nLocalNode; ++i)
+        {
+            for(int j = i + 1; j < theMesh->nLocalNode; ++j)
+            {
+                if(abs_value(theMesh->nodes->number[theMesh->elem[theMesh->nLocalNode * n + i]] - theMesh->nodes->number[theMesh->elem[theMesh->nLocalNode * n + j]]) > myBand)
+                    myBand = abs_value(theMesh->nodes->number[theMesh->elem[theMesh->nLocalNode * n + i]] - theMesh->nodes->number[theMesh->elem[theMesh->nLocalNode * n + j]]);    
+            }
+        }
+    }
+    return myBand + 1;
+}
+
+femBandSystem *femBandSystemCreate(int size, int band)
+{
+    femBandSystem *myBandSystem = malloc(sizeof(femBandSystem));
+    myBandSystem->B = malloc(sizeof(double)*size*(band+1));
+    myBandSystem->A = malloc(sizeof(double*)*size);        
+    myBandSystem->size = size;
+    myBandSystem->band = band;
+    myBandSystem->A[0] = myBandSystem->B + size;
+    int i;
+    for (i=1 ; i < size ; i++) 
+        myBandSystem->A[i] = myBandSystem->A[i-1] + band - 1;
+    femBandSystemInit(myBandSystem);
+    return(myBandSystem);
+}
+ 
+void femBandSystemFree(femBandSystem *myBandSystem)
+{
+    free(myBandSystem->B);
+    free(myBandSystem->A); 
+    free(myBandSystem);
+}
+ 
+void femBandSystemInit(femBandSystem *myBandSystem)
+{
+    int i;
+    int size = myBandSystem->size;
+    int band = myBandSystem->band;
+    for (i=0 ; i < size*(band+1) ; i++) 
+        myBandSystem->B[i] = 0;        
+}
+ 
+void femBandSystemPrint(femBandSystem *myBand)
+{
+    double  **A, *B;
+    int     i, j, band, size;
+    A    = myBand->A;
+    B    = myBand->B;
+    size = myBand->size;
+    band = myBand->band;
+
+    for (i=0; i < size; i++) {
+        for (j=i; j < i+band; j++)
+            if (A[i][j] == 0) printf("         ");   
+            else              printf(" %+.1e",A[i][j]);
+        printf(" :  %+.1e \n",B[i]); }
+}
   
-    if (theGeometry->elementType == FEM_TRIANGLE) {
-        gmshOptionSetNumber("Mesh.SaveAll",1,&ierr);
-        gmshModelMeshGenerate(2,&ierr);  }
+void femBandSystemPrintInfos(femBandSystem *myBand)
+{
+    int size = myBand->size;
+    int band = myBand->band;
+    printf(" \n");
+    printf("    Banded Gaussian elimination \n");
+    printf("    Storage informations \n");
+    printf("    Matrix size      : %8d\n",size);
+    printf("    Matrix band      : %8d\n",band);
+    printf("    Bytes required   : %8d\n",(int)sizeof(double)*size*(band+1));     
+}
 
-    return;
-}*/
+
+double femBandSystemGet(femBandSystem* myBandSystem, int myRow, int myCol)
+{
+    double value = 0;
+    if (myCol >= myRow && myCol < myRow+myBandSystem->band)  value = myBandSystem->A[myRow][myCol]; 
+    return(value);
+}
 
 static const double _gaussQuad4Xsi[4]    = {-0.577350269189626,-0.577350269189626, 0.577350269189626, 0.577350269189626};
 static const double _gaussQuad4Eta[4]    = { 0.577350269189626,-0.577350269189626,-0.577350269189626, 0.577350269189626};
@@ -1026,16 +1247,6 @@ void femError(char *text, int line, char *file)
     printf("--------------------------------------------------------------------- Yek Yek !! \n\n");
     exit(69);                                                 
 }
-/*
-void femErrorGmsh(int ierr, int line, char *file)                                  
-{ 
-    if (ierr == 0)  return;
-    printf("\n-------------------------------------------------------------------------------- ");
-    printf("\n  Error in %s at line %d : \n  error code returned by gmsh %d\n", file, line, ierr);
-    printf("--------------------------------------------------------------------- Yek Yek !! \n\n");
-    gmshFinalize(NULL);                                        
-    exit(69);                                                 
-}*/
 
 void femErrorScan(int test, int line, char *file)                                  
 { 
