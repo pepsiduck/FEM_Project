@@ -82,13 +82,21 @@ typedef struct {
     const double *weight;
 } femIntegration;
 
+typedef enum {FEM_FULL_SYSTEM, FEM_BAND_SYSTEM} femSystemType;
+
 typedef struct {
+    femSystemType type;
+} femSystem;
+
+typedef struct {
+    femSystem s;
     double *B;
     double **A;
     int size;
 } femFullSystem;
 
 typedef struct {
+    femSystem s;
     double *B;
     double **A;        
     int size;
@@ -117,7 +125,7 @@ typedef struct {
     femIntegration *rule;
     femDiscrete *spaceEdge;
     femIntegration *ruleEdge;
-    femFullSystem *system;
+    femSystem *system;
 } femProblem;
 
 
@@ -153,20 +161,21 @@ void                femBandSystemInit(femBandSystem *myBand);
 void                femBandSystemPrint(femBandSystem *myBand);
 void                femBandSystemPrintInfos(femBandSystem *myBand);
 double*             femBandSystemEliminate(femBandSystem *myBand);
+void                femBandSystemConstrain(femBandSystem* mySystem, int myNode, double value);
 void                femBandSystemAssemble(femBandSystem* myBandSystem, double *Aloc, double *Bloc, int *map, int nLoc);
 double              femBandSystemGet(femBandSystem* myBandSystem, int i, int j);
 
-femProblem*         femElasticityCreate(femGeo* theGeometry, 
-                                      double E, double nu, double rho, double gx, double gy, femElasticCase iCase);
-femProblem *femElasticityRead(femGeo *theGeometry, const char *filename);
+femProblem*         femElasticityCreate(femGeo* theGeometry,double E, double nu, double rho, double gx, double gy, femElasticCase iCase, femSystemType system_type, femRenumType renum_type);
+femProblem          *femElasticityRead(femGeo *theGeometry, const char *filename, femSystemType system_type, femRenumType renum_type);
 void                femElasticityFree(femProblem *theProblem);
 void                femElasticityPrint(femProblem *theProblem);
-void                femElasticityAddBoundaryCondition(femProblem *theProblem, char *nameDomain, femBoundaryType type, double value);
-void                femElasticityAssembleElements(femProblem *theProblem);
-void                femElasticityAssembleNeumann(femProblem *theProblem);
-double*             femElasticitySolve(femProblem *theProblem);
-double*             femElasticityForces(femProblem *theProblem);
-double              femElasticityIntegrate(femProblem *theProblem, double (*f)(double x, double y));
+void                femElasticityAddBoundaryCondition(femProblem *theProblem, char *nameDomain, femBoundaryType type, double value); //TODO renum
+void                femElasticityAssembleElementsFull(femProblem *theProblem); //TODO renum & band
+void                femElasticityAssembleNeumannFull(femProblem *theProblem); //TODO renum & band
+double*             femElasticitySolveFull(femProblem *theProblem);  //TODO renum & band
+void                femElasticityAssembleElementsBand(femProblem *theProblem); //TODO renum & band
+void                femElasticityAssembleNeumannBand(femProblem *theProblem); //TODO renum & band
+double*             femElasticitySolveBand(femProblem *theProblem);  //TODO renum & band
 
 
 femIntegration*     femIntegrationCreate(int n, femElementType type);
