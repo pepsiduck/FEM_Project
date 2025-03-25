@@ -70,10 +70,6 @@ CMakeFiles/myFem.dir/src/fem.c.o
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h
  /usr/include/strings.h
 
-CMakeFiles/myFem.dir/src/homework.c.o
- /home/pepsiduck/Bureau/FEM_Project/group119-tderaadt-rgoffartwinkin/src/homework.c
- /usr/include/stdc-predef.h
-
 CMakeFiles/myFem.dir/src/main.c.o
  /home/pepsiduck/Bureau/FEM_Project/group119-tderaadt-rgoffartwinkin/src/main.c
  /usr/include/stdc-predef.h

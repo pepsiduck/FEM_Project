@@ -1,8 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/myFem.dir/src/fem.c.o"
   "CMakeFiles/myFem.dir/src/fem.c.o.d"
-  "CMakeFiles/myFem.dir/src/homework.c.o"
-  "CMakeFiles/myFem.dir/src/homework.c.o.d"
   "CMakeFiles/myFem.dir/src/main.c.o"
   "CMakeFiles/myFem.dir/src/main.c.o.d"
   "myFem"

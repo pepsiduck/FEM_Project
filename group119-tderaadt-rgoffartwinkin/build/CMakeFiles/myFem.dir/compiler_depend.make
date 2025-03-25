@@ -69,9 +69,6 @@ CMakeFiles/myFem.dir/src/fem.c.o: ../src/fem.c \
   /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h
 
-CMakeFiles/myFem.dir/src/homework.c.o: ../src/homework.c \
-  /usr/include/stdc-predef.h
-
 CMakeFiles/myFem.dir/src/main.c.o: ../src/main.c \
   /usr/include/stdc-predef.h \
   ../src/fem.h \
@@ -182,8 +179,6 @@ CMakeFiles/myFem.dir/src/main.c.o: ../src/main.c \
 /usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
 
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
-
-../src/homework.c:
 
 /usr/include/x86_64-linux-gnu/bits/typesizes.h:
 
